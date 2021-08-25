@@ -1,25 +1,67 @@
-import logo from './logo.svg';
+import React from 'react';
+import { connect } from 'react-redux';
+
+import Todo from './components/Todo';
+
+import { addTodo, clearTodos } from './actions/todoActions';
+
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      todoInput: '',
+    };
+  }
+
+  handleChange = ({ target }) => {
+    this.setState({
+      todoInput: target.value,
+    });
+  }
+
+  handleClick = () => {
+    const { todoInput } = this.state;
+    const { todos, addTodoClick } = this.props;
+
+    addTodoClick({ id: todos.length, text: todoInput });
+
+    this.setState({
+      todoInput: '',
+    });
+  }
+
+  render() {
+    const { todoInput } = this.state;
+    const { todos, clearTodosClick } = this.props;
+
+    return (
+      <div className="App">
+        <input type="text" onChange={ this.handleChange } value={todoInput} />
+        <button type="button" onClick={ this.handleClick }>
+          add todo
+        </button>
+
+        <ul className="todo-list">
+          {todos &&
+            todos.map((todo, index) => <Todo key={index} todo={todo} />)}
+        </ul>
+
+        <button type="button" onClick={ clearTodosClick }>clear todos</button>
+      </div>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  todos: state,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  clearTodosClick: () => dispatch(clearTodos()),
+  addTodoClick: (todo) => dispatch(addTodo(todo)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
